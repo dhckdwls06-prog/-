@@ -2,21 +2,13 @@ import { GoogleGenAI } from "@google/genai";
 import { Message } from "../types";
 import { SYSTEM_INSTRUCTION } from "../constants";
 
-let client: GoogleGenAI | null = null;
-
-const getClient = () => {
-  if (!client) {
-    client = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  }
-  return client;
-};
-
 export const generateCoachResponse = async (
   history: Message[],
   userContext: string
 ): Promise<string> => {
   try {
-    const ai = getClient();
+    // Create a new instance every time to ensure we use the latest API key selected by the user
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
     // Convert history to Gemini format
     // We limit history to last 10 messages to keep context focused and save tokens
