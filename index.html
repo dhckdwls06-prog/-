@@ -12,6 +12,10 @@
         background-color: #f8fafc; /* Cleaner slate background */
       }
     </style>
+    <script>
+      /* Polyfill for process to avoid 'ReferenceError: process is not defined' in browser environments */
+      window.process = { env: {} };
+    </script>
   <script type="importmap">
 {
   "imports": {

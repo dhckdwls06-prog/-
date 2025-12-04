@@ -7,9 +7,10 @@ interface ChatInterfaceProps {
   messages: Message[];
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   userStats: UserStats;
+  apiKey: string;
 }
 
-const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessages, userStats }) => {
+const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessages, userStats, apiKey }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -45,7 +46,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessages, us
     `;
 
     try {
-      const responseText = await generateCoachResponse(newMessages, context);
+      const responseText = await generateCoachResponse(newMessages, context, apiKey);
       
       const botMsg: Message = {
         id: (Date.now() + 1).toString(),

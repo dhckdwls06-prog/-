@@ -4,11 +4,16 @@ import { SYSTEM_INSTRUCTION } from "../constants";
 
 export const generateCoachResponse = async (
   history: Message[],
-  userContext: string
+  userContext: string,
+  apiKey: string
 ): Promise<string> => {
   try {
-    // Create a new instance every time to ensure we use the latest API key selected by the user
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    if (!apiKey) {
+      throw new Error("API Key is missing");
+    }
+
+    // Create a new instance with the provided key
+    const ai = new GoogleGenAI({ apiKey: apiKey });
     
     // Convert history to Gemini format
     // We limit history to last 10 messages to keep context focused and save tokens
@@ -56,6 +61,6 @@ export const generateCoachResponse = async (
 
   } catch (error) {
     console.error("Gemini API Error:", error);
-    return "미안해요, 지금은 제가 잠시 생각을 정리하고 있어요. 잠시 후 다시 말을 걸어주세요. 💦";
+    return "미안해요, 지금은 제가 잠시 생각을 정리하고 있어요. 잠시 후 다시 말을 걸어주세요. 💦 (API 키를 확인해주세요)";
   }
 };
