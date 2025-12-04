@@ -1,16 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Message, UserStats } from '../types';
 import { generateCoachResponse } from '../services/geminiService';
-import { Send, Bot, User, Loader2 } from 'lucide-react';
+import { Send, Bot, Loader2 } from 'lucide-react';
 
 interface ChatInterfaceProps {
   messages: Message[];
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   userStats: UserStats;
-  apiKey: string;
 }
 
-const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessages, userStats, apiKey }) => {
+const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessages, userStats }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -38,7 +37,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessages, us
     setInput('');
     setIsLoading(true);
 
-    // Prepare context for AI
+    // Prepare context for AI (though now locally used or ignored by mock)
     const context = `
       현재 레벨: ${userStats.level}, 
       완료한 퀘스트: ${userStats.totalTasksCompleted}개, 
@@ -46,7 +45,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, setMessages, us
     `;
 
     try {
-      const responseText = await generateCoachResponse(newMessages, context, apiKey);
+      const responseText = await generateCoachResponse(newMessages, context);
       
       const botMsg: Message = {
         id: (Date.now() + 1).toString(),

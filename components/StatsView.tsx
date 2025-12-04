@@ -1,16 +1,15 @@
 import React from 'react';
 import { UserStats, Badge } from '../types';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Trophy, Calendar, Award, Coins, Settings, Bell, Volume2, Trash2, Info, KeyRound } from 'lucide-react';
+import { Trophy, Calendar, Award, Coins, Settings, Bell, Volume2, Trash2, Info } from 'lucide-react';
 
 interface StatsViewProps {
   stats: UserStats;
   badges: Badge[];
   onReset: () => void;
-  onResetKey: () => void;
 }
 
-const StatsView: React.FC<StatsViewProps> = ({ stats, badges, onReset, onResetKey }) => {
+const StatsView: React.FC<StatsViewProps> = ({ stats, badges, onReset }) => {
   // Sample data preparation for chart if history is empty
   const chartData = stats.moodHistory.length > 0 
     ? stats.moodHistory 
@@ -124,16 +123,6 @@ const StatsView: React.FC<StatsViewProps> = ({ stats, badges, onReset, onResetKe
               </div>
 
                <button 
-                  onClick={onResetKey}
-                  className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors text-gray-700"
-               >
-                  <div className="flex items-center gap-3">
-                      <KeyRound size={20} className="text-gray-500" />
-                      <span className="font-medium">API 키 변경</span>
-                  </div>
-              </button>
-
-               <button 
                   onClick={onReset} 
                   className="w-full flex items-center justify-between p-3 bg-red-50 hover:bg-red-100 rounded-xl transition-colors text-red-600"
                >
@@ -148,7 +137,7 @@ const StatsView: React.FC<StatsViewProps> = ({ stats, badges, onReset, onResetKe
                       <Info size={16} />
                       <span className="text-sm">버전 정보</span>
                   </div>
-                  <span className="text-gray-400 text-sm">v1.0.0</span>
+                  <span className="text-gray-400 text-sm">v1.1.0 (Lite)</span>
               </div>
           </div>
       </div>

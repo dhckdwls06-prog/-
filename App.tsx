@@ -5,14 +5,10 @@ import QuestCard from './components/QuestCard';
 import ChatInterface from './components/ChatInterface';
 import StatsView from './components/StatsView';
 import StoreView from './components/StoreView';
-import { LayoutDashboard, ListTodo, MessageCircleHeart, UserCircle2, Plus, Store, Coins, Loader2, KeyRound, Save, User } from 'lucide-react';
+import { LayoutDashboard, ListTodo, MessageCircleHeart, UserCircle2, Plus, Store, Coins, User } from 'lucide-react';
 
 const App: React.FC = () => {
   // --- State ---
-  const [apiKey, setApiKey] = useState<string | null>(null);
-  const [manualKeyInput, setManualKeyInput] = useState('');
-  const [isCheckingKey, setIsCheckingKey] = useState(true);
-
   const [view, setView] = useState<ViewState>('dashboard');
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
   const [stats, setStats] = useState<UserStats>({
@@ -38,40 +34,6 @@ const App: React.FC = () => {
 
   // --- Effects ---
   
-  // Check for API Key on mount
-  useEffect(() => {
-    const checkApiKey = async () => {
-      try {
-        // 1. Try to get key from AI Studio environment (development)
-        if (window.aistudio) {
-          const hasKey = await window.aistudio.hasSelectedApiKey();
-          if (hasKey) {
-            // In AI Studio preview, process.env.API_KEY is injected safely.
-            // We use a safe access pattern to avoid crashing in browsers where 'process' is undefined.
-            const envKey = (typeof process !== 'undefined' && process.env) ? process.env.API_KEY : null;
-            if (envKey) {
-                setApiKey(envKey);
-                setIsCheckingKey(false);
-                return;
-            }
-          }
-        }
-        
-        // 2. Try to get key from LocalStorage (deployment/fallback)
-        const savedKey = localStorage.getItem('doyak_api_key');
-        if (savedKey) {
-          setApiKey(savedKey);
-        }
-      } catch (e) {
-        console.error("Error checking API key:", e);
-      } finally {
-        // Safety timeout in case everything fails, stop loading after 2s
-        setTimeout(() => setIsCheckingKey(false), 2000);
-      }
-    };
-    checkApiKey();
-  }, []);
-
   // Load data from localStorage on mount
   useEffect(() => {
     const savedStats = localStorage.getItem('doyak_stats');
@@ -109,37 +71,6 @@ const App: React.FC = () => {
   }, [stats, badges]);
 
   // --- Handlers ---
-
-  const handleAiStudioKeySelect = async () => {
-    if (!window.aistudio) return;
-    try {
-      await window.aistudio.openSelectKey();
-      // After selection, we reload to ensure the env is injected or check again
-      const envKey = (typeof process !== 'undefined' && process.env) ? process.env.API_KEY : null;
-      if (envKey) {
-        setApiKey(envKey);
-      } else {
-        // Fallback: Force reload or ask user to wait
-        alert("키가 선택되었습니다. 앱을 다시 로드합니다.");
-        window.location.reload();
-      }
-    } catch (e) {
-      console.error("Error selecting API key:", e);
-      if (e instanceof Error && e.message.includes("Requested entity was not found")) {
-         alert("API 키를 찾을 수 없습니다. 다시 선택해주세요.");
-      }
-    }
-  };
-
-  const handleManualKeySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (manualKeyInput.trim().length > 10) {
-      localStorage.setItem('doyak_api_key', manualKeyInput.trim());
-      setApiKey(manualKeyInput.trim());
-    } else {
-      alert("유효한 API 키를 입력해주세요.");
-    }
-  };
 
   const handleTaskToggle = (id: string) => {
     setTasks(prevTasks => {
@@ -227,24 +158,7 @@ const App: React.FC = () => {
       localStorage.removeItem('doyak_stats');
       localStorage.removeItem('doyak_tasks');
       localStorage.removeItem('doyak_messages');
-      localStorage.removeItem('doyak_api_key'); // Also reset key
       window.location.reload();
-    }
-  };
-  
-  const handleResetKey = async () => {
-    if (window.confirm('API 키를 변경하시겠습니까?')) {
-        if (window.aistudio) {
-            try {
-                await window.aistudio.openSelectKey();
-                window.location.reload();
-            } catch(e) {
-                console.error(e);
-            }
-        } else {
-            localStorage.removeItem('doyak_api_key');
-            window.location.reload();
-        }
     }
   };
 
@@ -383,7 +297,7 @@ const App: React.FC = () => {
       case 'chat':
         return (
           <div className="h-full p-6">
-            <ChatInterface messages={messages} setMessages={setMessages} userStats={stats} apiKey={apiKey!} />
+            <ChatInterface messages={messages} setMessages={setMessages} userStats={stats} />
           </div>
         );
       
@@ -397,81 +311,11 @@ const App: React.FC = () => {
       case 'stats':
         return (
           <div className={scrollContainerClass}>
-            <StatsView stats={stats} badges={badges} onReset={handleResetData} onResetKey={handleResetKey} />
+            <StatsView stats={stats} badges={badges} onReset={handleResetData} />
           </div>
         );
     }
   };
-
-  // --- Initial Loading & Key Check ---
-  if (isCheckingKey) {
-    return (
-      <div className="h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
-        <Loader2 className="animate-spin text-green-600 mb-4" size={40} />
-        <p className="text-gray-500 font-medium">로딩 중...</p>
-      </div>
-    );
-  }
-
-  // --- Landing Screen for API Key ---
-  if (!apiKey) {
-    return (
-      <div className="h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center max-w-md mx-auto">
-        <div className="w-20 h-20 bg-green-600 rounded-3xl flex items-center justify-center text-white text-4xl font-bold shadow-xl mb-8">
-          도
-        </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-3">도약 시작하기</h1>
-        <p className="text-gray-500 mb-10 leading-relaxed">
-          더 나은 내일을 위한 작은 발걸음.<br/>
-          AI 코치 도담이와 함께 시작해보세요.
-        </p>
-
-        <div className="w-full space-y-4">
-          {/* Option 1: AI Studio Connect (Only if available) */}
-          {window.aistudio && (
-             <button 
-              onClick={handleAiStudioKeySelect}
-              className="w-full bg-gradient-to-r from-green-600 to-teal-600 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2"
-            >
-              <KeyRound size={20} />
-              Google API Key 연결하기
-            </button>
-          )}
-
-          {/* Option 2: Manual Input (Always available as fallback/production) */}
-          <div className="bg-white p-4 rounded-xl shadow-md border border-gray-100 text-left">
-            <p className="text-sm font-bold text-gray-700 mb-2">API Key 직접 입력</p>
-            <form onSubmit={handleManualKeySubmit} className="space-y-2">
-                <input 
-                    type="password" 
-                    value={manualKeyInput}
-                    onChange={(e) => setManualKeyInput(e.target.value)}
-                    placeholder="AI Studio API Key 붙여넣기"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-green-500 transition-colors"
-                />
-                <button 
-                    type="submit"
-                    className="w-full bg-gray-800 text-white py-2 rounded-lg text-sm font-medium hover:bg-gray-900 transition-colors flex items-center justify-center gap-2"
-                >
-                    <Save size={16} />
-                    저장하고 시작하기
-                </button>
-            </form>
-          </div>
-          
-          <div className="text-xs text-gray-400 bg-gray-100 p-4 rounded-xl text-left space-y-2">
-            <p className="font-semibold text-gray-500">ℹ️ 참고사항</p>
-            <p>
-              원활한 AI 상담을 위해 Google Gemini API Key가 필요합니다. 
-              <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noreferrer" className="text-blue-500 underline ml-1">
-                 결제 문서(Billing)
-              </a>를 참고하여 유효한 키를 발급받으세요.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="h-screen bg-slate-50 max-w-md mx-auto relative shadow-2xl overflow-hidden flex flex-col">
