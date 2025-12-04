@@ -5,7 +5,7 @@ import QuestCard from './components/QuestCard';
 import ChatInterface from './components/ChatInterface';
 import StatsView from './components/StatsView';
 import StoreView from './components/StoreView';
-import { LayoutDashboard, ListTodo, MessageCircleHeart, UserCircle2, Plus, Store, Coins, Loader2, KeyRound, Save } from 'lucide-react';
+import { LayoutDashboard, ListTodo, MessageCircleHeart, UserCircle2, Plus, Store, Coins, Loader2, KeyRound, Save, User } from 'lucide-react';
 
 const App: React.FC = () => {
   // --- State ---
@@ -65,7 +65,8 @@ const App: React.FC = () => {
       } catch (e) {
         console.error("Error checking API key:", e);
       } finally {
-        setIsCheckingKey(false);
+        // Safety timeout in case everything fails, stop loading after 2s
+        setTimeout(() => setIsCheckingKey(false), 2000);
       }
     };
     checkApiKey();
@@ -249,7 +250,14 @@ const App: React.FC = () => {
               {/* Header / Hero */}
               <div className="bg-gradient-to-r from-green-600 to-teal-600 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-                <h1 className="text-2xl font-bold mb-1">안녕하세요, 도전자님!</h1>
+                
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-bold">안녕하세요, 도전자님!</h1>
+                  <div className="bg-white/20 p-1.5 rounded-full backdrop-blur-sm">
+                    <User size={20} className="text-white" />
+                  </div>
+                </div>
+
                 <p className="opacity-90 text-sm mb-4">오늘도 작은 발걸음을 떼어볼까요?</p>
                 
                 <div className="space-y-2">
@@ -423,7 +431,7 @@ const App: React.FC = () => {
                     value={manualKeyInput}
                     onChange={(e) => setManualKeyInput(e.target.value)}
                     placeholder="AI Studio API Key 붙여넣기"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500 transition-colors"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-green-500 transition-colors"
                 />
                 <button 
                     type="submit"
