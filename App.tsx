@@ -231,6 +231,22 @@ const App: React.FC = () => {
       window.location.reload();
     }
   };
+  
+  const handleResetKey = async () => {
+    if (window.confirm('API 키를 변경하시겠습니까?')) {
+        if (window.aistudio) {
+            try {
+                await window.aistudio.openSelectKey();
+                window.location.reload();
+            } catch(e) {
+                console.error(e);
+            }
+        } else {
+            localStorage.removeItem('doyak_api_key');
+            window.location.reload();
+        }
+    }
+  };
 
   // --- Render Helpers ---
 
@@ -381,7 +397,7 @@ const App: React.FC = () => {
       case 'stats':
         return (
           <div className={scrollContainerClass}>
-            <StatsView stats={stats} badges={badges} onReset={handleResetData} />
+            <StatsView stats={stats} badges={badges} onReset={handleResetData} onResetKey={handleResetKey} />
           </div>
         );
     }

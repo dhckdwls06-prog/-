@@ -1,15 +1,16 @@
 import React from 'react';
 import { UserStats, Badge } from '../types';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Trophy, Calendar, Award, Coins, Settings, Bell, Volume2, Trash2, Info } from 'lucide-react';
+import { Trophy, Calendar, Award, Coins, Settings, Bell, Volume2, Trash2, Info, KeyRound } from 'lucide-react';
 
 interface StatsViewProps {
   stats: UserStats;
   badges: Badge[];
   onReset: () => void;
+  onResetKey: () => void;
 }
 
-const StatsView: React.FC<StatsViewProps> = ({ stats, badges, onReset }) => {
+const StatsView: React.FC<StatsViewProps> = ({ stats, badges, onReset, onResetKey }) => {
   // Sample data preparation for chart if history is empty
   const chartData = stats.moodHistory.length > 0 
     ? stats.moodHistory 
@@ -121,6 +122,16 @@ const StatsView: React.FC<StatsViewProps> = ({ stats, badges, onReset }) => {
                   </div>
                    <div className="bg-green-100 text-green-600 text-xs font-bold px-3 py-1 rounded-full">ON</div>
               </div>
+
+               <button 
+                  onClick={onResetKey}
+                  className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors text-gray-700"
+               >
+                  <div className="flex items-center gap-3">
+                      <KeyRound size={20} className="text-gray-500" />
+                      <span className="font-medium">API 키 변경</span>
+                  </div>
+              </button>
 
                <button 
                   onClick={onReset} 
